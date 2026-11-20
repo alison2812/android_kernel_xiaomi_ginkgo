@@ -9,6 +9,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-22.04
+
     steps:
       - name: Baixar a árvore do kernel
         uses: actions/checkout@v4
@@ -27,20 +28,23 @@ jobs:
           git clone --depth=1 --filter=blob:none --sparse \
             https://github.com/ravindu644/Toolchains_for_Snapdragon.git \
             "$HOME/toolchains"
+
           git -C "$HOME/toolchains" sparse-checkout set \
             llvm-arm-toolchain-ship-10.0 \
             aarch64-linux-android-4.9
 
-          mkdir -p "$HOME/caf/vendor/qcom/proprietary"
+          mkdir -p "$HOME/caf/vendor/qcom/proprietary/llvm-arm-toolchain-ship"
           mkdir -p "$HOME/caf/prebuilts/gcc/linux-x86/aarch64"
           mkdir -p "$HOME/caf/prebuilts/gcc/linux-x86/arm"
 
           ln -s "$HOME/toolchains/llvm-arm-toolchain-ship-10.0" \
-            "$HOME/caf/vendor/qcom/proprietary/llvm-arm-toolchain-ship"
+            "$HOME/caf/vendor/qcom/proprietary/llvm-arm-toolchain-ship/10.0"
+
           ln -s "$HOME/toolchains/aarch64-linux-android-4.9" \
             "$HOME/caf/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9"
 
           mkdir -p "$HOME/caf/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9"
+
           curl -L --fail \
             "https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/heads/android11-release.tar.gz" \
             | tar -xz -C "$HOME/caf/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9"
@@ -50,15 +54,17 @@ jobs:
           test -x "$HOME/caf/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/bin/arm-linux-androideabi-gcc"
 
           cd "$HOME/caf/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/bin"
+
           for tool in gcc g++ cpp ar nm objcopy objdump strip ld ranlib readelf; do
             if [ -x "arm-linux-androideabi-$tool" ]; then
               ln -sf "arm-linux-androideabi-$tool" "arm-linux-androidkernel-$tool"
             fi
           done
 
-      - name: Ativar opções e conferir a configuração
+      - name: Ativar opções de tracing e conferir configuração
         run: |
           set -eux
+
           scripts/config --file arch/arm64/configs/vendor/ginkgo-perf_defconfig \
             -e DEBUG_FS \
             -e FTRACE \
@@ -70,10 +76,17 @@ jobs:
           make O=out ARCH=arm64 vendor/ginkgo-perf_defconfig
           make O=out ARCH=arm64 olddefconfig
 
-          grep -E '^CONFIG_(DEBUG_FS|FTRACE|FTRACE_SYSCALLS|FUNCTION_TRACER|AUDIT|AUDITSYSCALL)=y$' out/.config
+          for option in \
+            CONFIG_DEBUG_FS \
+            CONFIG_FTRACE \
+            CONFIG_FTRACE_SYSCALLS \
+            CONFIG_FUNCTION_TRACER \
+            CONFIG_AUDIT \
+            CONFIG_AUDITSYSCALL; do
+            grep -q "^${option}=y$" out/.config
+          done
 
-          grep -q '^CONFIG_FTRACE_SYSCALLS=y$' out/.config
-          grep -q '^CONFIG_DEBUG_FS=y$' out/.config
+          grep -E '^CONFIG_(DEBUG_FS|FTRACE|FTRACE_SYSCALLS|FUNCTION_TRACER|AUDIT|AUDITSYSCALL)=y$' out/.config
 
       - name: Compilar e empacotar
         run: |
@@ -89,3 +102,4 @@ jobs:
             out/.config
           if-no-files-found: error
           retention-days: 7
+          
