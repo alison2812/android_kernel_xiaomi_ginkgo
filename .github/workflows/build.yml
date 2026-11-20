@@ -90,8 +90,8 @@ jobs:
         with:
           name: quicksilver-ginkgo-ftrace
           path: |
-            QuicksilveR-ginkgo-*-sdclang.zip
+            QuicksilveRV2-ginkgo-*-sdclang.zip
             out/.config
           if-no-files-found: error
           retention-days: 7
-          
+
