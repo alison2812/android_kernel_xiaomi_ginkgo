@@ -46,7 +46,7 @@ jobs:
           mkdir -p "$HOME/caf/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9"
 
           curl -L --fail \
-            "https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/heads/android11-release.tar.gz" \
+            "https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/+archive/refs/heads/pie-release.tar.gz" \
             | tar -xz -C "$HOME/caf/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9"
 
           test -x "$HOME/caf/vendor/qcom/proprietary/llvm-arm-toolchain-ship/10.0/bin/clang"
