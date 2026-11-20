@@ -91,7 +91,7 @@ jobs:
       - name: Compilar e empacotar
         run: |
           set -eux
-          ./build-sdclang.sh
+          bash ./build-sdclang.sh
 
       - name: Publicar ZIP e configuração como artifacts
         uses: actions/upload-artifact@v4
