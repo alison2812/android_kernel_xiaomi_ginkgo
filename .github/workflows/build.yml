@@ -19,7 +19,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             bc bison build-essential curl flex git libelf-dev \
-            libncurses-dev libssl-dev lld python3 rsync unzip zip
+            libncurses-dev libssl-dev libtinfo5 lld python3 rsync unzip zip
 
       - name: Preparar toolchains
         run: |
@@ -51,15 +51,7 @@ jobs:
 
           test -x "$HOME/caf/vendor/qcom/proprietary/llvm-arm-toolchain-ship/10.0/bin/clang"
           test -x "$HOME/caf/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-androidkernel-gcc"
-          test -x "$HOME/caf/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/bin/arm-linux-androideabi-gcc"
-
-          cd "$HOME/caf/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/bin"
-
-          for tool in gcc g++ cpp ar nm objcopy objdump strip ld ranlib readelf; do
-            if [ -x "arm-linux-androideabi-$tool" ]; then
-              ln -sf "arm-linux-androideabi-$tool" "arm-linux-androidkernel-$tool"
-            fi
-          done
+          test -x "$HOME/caf/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9/bin/arm-linux-androidkernel-gcc"
 
       - name: Ativar opções de tracing e conferir configuração
         run: |
